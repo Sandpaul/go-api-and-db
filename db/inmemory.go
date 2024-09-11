@@ -6,6 +6,7 @@ type User struct {
 }
 
 var users []User
+var count int = 3
 
 func init() {
 	users = []User{
@@ -17,4 +18,13 @@ func init() {
 
 func GetUsers() []User {
 	return users
+}
+
+func AddUser(user User) (id int) {
+	count++
+	user.ID = count
+
+	users = append(users, user)
+
+	return count
 }
