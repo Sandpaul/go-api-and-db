@@ -49,7 +49,7 @@ func AddUser(user User) (id int) {
 	return count
 }
 
-func DeleteUser(id int) {
+func DeleteUser(id int) bool {
 	index := -1
 
 	for i, user := range users {
@@ -61,5 +61,7 @@ func DeleteUser(id int) {
 
 	if index != -1 {
 		users = slices.Delete(users, index, index+1)
+		return true
 	}
+	return false
 }

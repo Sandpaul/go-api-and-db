@@ -7,7 +7,7 @@ import (
 
 func TestDeleteUser(t *testing.T) {
 
-	DeleteUser(2)
+	result := DeleteUser(2)
 
 	expectedUsers := []User{
 			{ID: 1, Name: "User 1"},
@@ -16,5 +16,9 @@ func TestDeleteUser(t *testing.T) {
 
 	if !slices.Equal(users, expectedUsers) {
 		t.Errorf("Expected users %v, but got %v", expectedUsers, users)
+	}
+
+	if result != true {
+		t.Errorf("Expected true, got %v", result)
 	}
 }
