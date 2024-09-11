@@ -11,7 +11,7 @@ import (
 func main() {
 
 	http.HandleFunc("/", rootHandler)
-	http.HandleFunc("/api/users", getUsers)
+	http.HandleFunc("/api/users", handleUsers)
 
 	// Starting the HTTP server on port 8080
 	fmt.Println("Server listening on port 8080...")
@@ -25,8 +25,26 @@ func rootHandler(writer http.ResponseWriter, request *http.Request) {
 	io.WriteString(writer, "Hello, World!")
 }
 
-func getUsers(writer http.ResponseWriter, request *http.Request) {
-	fmt.Printf("got /api/users request\n")
+func handleUsers(writer http.ResponseWriter, request *http.Request) {
+	
+    if request.Method == http.MethodPost {
+
+        var user db.User
+        err := json.NewDecoder(request.Body).Decode(&user)
+        if err != nil {
+            fmt.Println("Error decoding request body:", err)
+            http.Error(writer, "Bad Request", http.StatusBadRequest)
+            return
+        }
+
+        id := db.AddUser(user)
+        writer.WriteHeader(http.StatusCreated)
+        fmt.Fprintf(writer, "User created successfully: %d", id)
+
+        return
+    }
+    
+    fmt.Printf("got /api/users request\n")
 
 	users := db.GetUsers()
 
