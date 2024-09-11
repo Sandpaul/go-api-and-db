@@ -17,6 +17,8 @@ func main() {
     router.HandleFunc("GET /api/users", getUsers)
     router.HandleFunc("GET /api/users/{id}", getSingleUser)
     router.HandleFunc("POST /api/users", createUser)
+    router.HandleFunc("DELETE /api/users/{id}", deleteUser)
+    router.HandleFunc("PATCH /api/users/{id}", updateUserName)
 
 	// Starting the HTTP server on port 8080 and providing router variable to ListenAndServe
 	fmt.Println("Server listening on port 8080...")
@@ -79,4 +81,50 @@ func createUser(writer http.ResponseWriter, request *http.Request) {
         id := db.AddUser(user)
         writer.WriteHeader(http.StatusCreated)
         fmt.Fprintf(writer, "User created successfully: %d", id)
+}
+
+func deleteUser(writer http.ResponseWriter, request *http.Request) {
+ 
+    idStr := request.PathValue("id")
+
+    id, err := strconv.Atoi(idStr)
+
+    if err != nil {
+        fmt.Println("Error parsing ID:", err)
+        http.Error(writer, "Bad Request", http.StatusBadRequest)
+        return
+    }
+    result := db.DeleteUser(id)
+    
+    if result {
+        writer.WriteHeader(http.StatusOK)
+        fmt.Fprintf(writer, "User deleted successfully: %d", id)
+    }
+}
+
+func updateUserName(writer http.ResponseWriter, request *http.Request) {
+    idStr := request.PathValue("id")
+
+    id, err := strconv.Atoi(idStr)
+    fmt.Println("ID:", id)
+    if err != nil {
+        fmt.Println("Error parsing ID:", err)
+        http.Error(writer, "Bad Request", http.StatusBadRequest)
+        return
+    }
+
+    var requestBody struct {
+        Name string `json:"name"`
+    }
+    
+    err = json.NewDecoder(request.Body).Decode(&requestBody)
+    if err != nil {
+        http.Error(writer, "Invalid request body", http.StatusBadRequest)
+        return
+    }
+
+    if db.UpdateUserName(id, requestBody.Name) {
+        writer.WriteHeader(http.StatusOK)
+        fmt.Fprintf(writer, "User name updated succesfully")
+    }
 }

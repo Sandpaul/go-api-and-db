@@ -65,3 +65,23 @@ func DeleteUser(id int) bool {
 	}
 	return false
 }
+
+func UpdateUserName(id int, newName string) bool {
+	index := -1
+
+	for i, user := range users {
+		if user.ID == id {
+			index = i
+			break
+		}
+	}
+
+	if index != -1 {
+		userToUpdate := users[index]
+		userToUpdate.Name = newName
+		users = slices.Delete(users, index, index+1)
+		users = append(users, userToUpdate)
+		return true
+	}
+	return false
+}

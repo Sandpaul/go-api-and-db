@@ -43,3 +43,23 @@ func TestDeleteUserInvalidId(t *testing.T) {
 		t.Errorf("Expected false, got %v", result)
 	}
 }
+
+func TestUpdateUserName(t *testing.T) {
+	ResetUsers()
+
+	result := UpdateUserName(1, "Ralph")
+
+	expectedUsers := []User{
+		{ID: 2, Name: "User 2"},
+		{ID: 3, Name: "User 3"},
+		{ID: 1, Name: "Ralph"},
+	}
+
+	if !slices.Equal(users, expectedUsers) {
+		t.Errorf("Expected users %v, but got %v", expectedUsers, users)
+	}
+
+	if result != true {
+		t.Errorf("Expected true, got %v", result)
+	}
+}
