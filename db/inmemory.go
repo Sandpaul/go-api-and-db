@@ -20,6 +20,18 @@ func GetUsers() []User {
 	return users
 }
 
+func GetUser(id int) User {
+	var user User
+
+	for _, user := range users{
+		if user.ID == id {
+			return user
+		}
+	}
+
+	return user
+} 
+
 func AddUser(user User) (id int) {
 	count++
 	user.ID = count

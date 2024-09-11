@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+    "strconv"
 )
 
 func main() {
@@ -14,6 +15,7 @@ func main() {
 
     router.HandleFunc("GET /", rootHandler)
     router.HandleFunc("GET /api/users", getUsers)
+    router.HandleFunc("GET /api/users/{id}", getSingleUser)
     router.HandleFunc("POST /api/users", createUser)
 
 	// Starting the HTTP server on port 8080 and providing router variable to ListenAndServe
@@ -46,6 +48,22 @@ func getUsers(writer http.ResponseWriter, request *http.Request) {
 		http.Error(writer, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+}
+
+func getSingleUser(writer http.ResponseWriter, request *http.Request) {
+
+    idStr := request.PathValue("id")
+    
+    id, err := strconv.Atoi(idStr)
+    if err != nil {
+        fmt.Println("Error parsing ID:", err)
+        http.Error(writer, "Bad Request", http.StatusBadRequest)
+        return
+    }
+
+    user := db.GetUser(id)
+
+    json.NewEncoder(writer).Encode(user)
 }
 
 func createUser(writer http.ResponseWriter, request *http.Request) {
