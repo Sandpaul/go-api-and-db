@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 )
 
@@ -85,5 +86,14 @@ func TestGetUsersHandler(t *testing.T) {
 
 	if rr.Body.String() != string(expectedJSON) {
 		t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
+	}
+
+	var actual []db.User
+	if err := json.Unmarshal(rr.Body.Bytes(), &actual); err != nil {
+		t.Fatalf("Failed to unmarshal response body: %v", err)
+	}
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("handler returned unexpected body: got % v want % v", actual, expected)
 	}
 }
