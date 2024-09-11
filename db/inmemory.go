@@ -1,15 +1,12 @@
 package db
 
 import (
+	"acme/model"
+	"errors"
 	"slices"
 )
 
-type User struct {
-	ID   int    `json:"id`
-	Name string `json:"name"`
-}
-
-var users []User
+var users []model.User
 var count int = 3
 
 func init() {
@@ -17,71 +14,57 @@ func init() {
 }
 
 func ResetUsers() {
-	users = []User{
+	users = []model.User{
 		{ID: 1, Name: "User 1"},
 		{ID: 2, Name: "User 2"},
 		{ID: 3, Name: "User 3"},
 	}
 }
 
-func GetUsers() []User {
-	return users
+func GetUsers() ([]model.User, error) {
+	return users, nil
 }
 
-func GetUser(id int) User {
-	var user User
+func GetUser(id int) (model.User, error) {
+	var user model.User
 
-	for _, user := range users{
+	for _, user := range users {
 		if user.ID == id {
-			return user
+			return user, nil
 		}
 	}
 
-	return user
-} 
+	return user, errors.New("user id not found")
+}
 
-func AddUser(user User) (id int) {
+func AddUser(user model.User) (id int, err error) {
 	count++
 	user.ID = count
 
 	users = append(users, user)
 
-	return count
+	return count, nil
 }
 
-func DeleteUser(id int) bool {
-	index := -1
+func DeleteUser(id int) error {
 
-	for i, user := range users {
+	for index, user := range users {
 		if user.ID == id {
-			index = i
-			break
+			users = slices.Delete(users, index, index+1)
+			return nil
 		}
 	}
 
-	if index != -1 {
-		users = slices.Delete(users, index, index+1)
-		return true
-	}
-	return false
+	return errors.New("user id not found to delete")
 }
 
-func UpdateUserName(id int, newName string) bool {
-	index := -1
-
-	for i, user := range users {
+func UpdateUserName(id int, updatedUser model.User) (model.User, error) {
+	for index, user := range users {
 		if user.ID == id {
-			index = i
-			break
+			users[index].Name = updatedUser.Name
+			return user, nil
 		}
 	}
 
-	if index != -1 {
-		userToUpdate := users[index]
-		userToUpdate.Name = newName
-		users = slices.Delete(users, index, index+1)
-		users = append(users, userToUpdate)
-		return true
-	}
-	return false
+	return model.User{}, errors.New("user id not found to update")
 }

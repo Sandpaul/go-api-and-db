@@ -1,7 +1,8 @@
 package main
 
 import (
-	"acme/db"
+	"acme/api"
+	"acme/model"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -64,9 +65,9 @@ func TestGetUsersHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler := http.HandlerFunc(getUsers)
+	handler := http.HandlerFunc(api.GetUsers)
 
-	expected := []db.User{
+	expected := []model.User{
 		{ID: 1, Name: "User 1"},
 		{ID: 2, Name: "User 2"},
 		{ID: 3, Name: "User 3"},
@@ -78,7 +79,7 @@ func TestGetUsersHandler(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	var actual []db.User
+	var actual []model.User
 	if err := json.Unmarshal(rr.Body.Bytes(), &actual); err != nil {
 		t.Fatalf("Failed to unmarshal response body: %v", err)
 	}
@@ -89,7 +90,7 @@ func TestGetUsersHandler(t *testing.T) {
 }
 
 func TestGetUsersHandlerWithServer(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(getUsers))
+	server := httptest.NewServer(http.HandlerFunc(api.GetUsers))
 	defer server.Close()
 
 	resp, err := http.Get(server.URL + "/api/users")
@@ -102,7 +103,7 @@ func TestGetUsersHandlerWithServer(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	expected := []db.User{
+	expected := []model.User{
 		{ID: 1, Name: "User 1"},
 		{ID: 2, Name: "User 2"},
 		{ID: 3, Name: "User 3"},
@@ -113,7 +114,7 @@ func TestGetUsersHandlerWithServer(t *testing.T) {
 		t.Fatalf("Failed to read response body: %v", err)
 	}
 
-	var actual []db.User
+	var actual []model.User
 	if err := json.Unmarshal(bodyBytes, &actual); err != nil {
 		t.Fatalf("Failed to unmarshal response body: %v", err)
 	}
@@ -132,7 +133,7 @@ func TestDeleteUserHandler(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	router := http.NewServeMux()
-	router.HandleFunc("DELETE /api/users/{id}", deleteUser)
+	router.HandleFunc("DELETE /api/users/{id}", api.DeleteUser)
 	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
