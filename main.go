@@ -1,17 +1,17 @@
 package main
 
 import (
-    "acme/db"
-    "encoding/json"
+	"acme/db"
+	"encoding/json"
 	"fmt"
-	"net/http"
 	"io"
+	"net/http"
 )
 
 func main() {
 
 	http.HandleFunc("/", rootHandler)
-    http.HandleFunc("/api/users", getUsers)
+	http.HandleFunc("/api/users", getUsers)
 
 	// Starting the HTTP server on port 8080
 	fmt.Println("Server listening on port 8080...")
@@ -22,25 +22,25 @@ func main() {
 }
 
 func rootHandler(writer http.ResponseWriter, request *http.Request) {
-    io.WriteString(writer, "Hello, World!")
+	io.WriteString(writer, "Hello, World!")
 }
 
 func getUsers(writer http.ResponseWriter, request *http.Request) {
-    fmt.Printf("got /api/users request\n")
-    
-    users := db.GetUsers()
+	fmt.Printf("got /api/users request\n")
 
-    usersJSON, errMarshal := json.Marshal(users)
-    if errMarshal != nil {
-        http.Error(writer, "Internal Server Error", http.StatusInternalServerError)
-        return
-    }
+	users := db.GetUsers()
 
-    writer.Header().Set("Content-Type", "application/json")
-    
-    _, err := writer.Write(usersJSON)
-    if err != nil {
-        http.Error(writer, "Internal Server Error", http.StatusInternalServerError)
-        return
-    }
+	usersJSON, errMarshal := json.Marshal(users)
+	if errMarshal != nil {
+		http.Error(writer, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	writer.Header().Set("Content-Type", "application/json")
+
+	_, err := writer.Write(usersJSON)
+	if err != nil {
+		http.Error(writer, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 }
