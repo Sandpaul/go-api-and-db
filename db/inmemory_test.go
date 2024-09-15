@@ -51,21 +51,35 @@ func TestGetUser(t *testing.T) {
 func TestAddUserAddsNewUser(t *testing.T) {
 	ResetUsers()
 
-	expected_users := []model.User{
+	expectedUsers := []model.User{
 		{ID: 1, Name: "User 1"},
 		{ID: 2, Name: "User 2"},
 		{ID: 3, Name: "User 3"},
 		{ID: 4, Name: "User 4"},
 	}
 
-	new_user := model.User{
-		Name: "User 4",
+	newUser := model.User{Name: "User 4"}
+
+	newUserID, err := AddUser(newUser)
+
+	if err != nil {
+		t.Fatalf("expected no error, but got %v", err)
 	}
 
-	AddUser(new_user)
+	expectedUserID := 4
 
-	if !slices.Equal(expected_users, users) {
-		t.Errorf("Expected users: %v but got: %v", expected_users, users)
+	if newUserID != expectedUserID {
+		t.Errorf("expected new user ID to be %v, but got %v", expectedUserID, newUserID)
+	}
+
+	users, err := GetUsers()
+
+	if err != nil {
+		t.Fatalf("expected no error, but got %v", err)
+	}
+
+	if !slices.Equal(users, expectedUsers) {
+		t.Errorf("expected users %v, but got %v", expectedUsers, users)
 	}
 }
 
