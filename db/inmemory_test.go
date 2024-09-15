@@ -22,6 +22,27 @@ func TestGetUser(t *testing.T) {
 	}
 }
 
+func TestAddUserAddsNewUser(t *testing.T) {
+	ResetUsers()
+
+	expected_users := []model.User{
+		{ID: 1, Name: "User 1"},
+		{ID: 2, Name: "User 2"},
+		{ID: 3, Name: "User 3"},
+		{ID: 4, Name: "User 4"},
+	}
+
+	new_user := model.User{
+		Name: "User 4",
+	}
+
+	AddUser(new_user)
+
+	if !slices.Equal(expected_users, users) {
+		t.Errorf("Expected users: %v but got: %v", expected_users, users)
+	}
+}
+
 func TestDeleteUser(t *testing.T) {
 	ResetUsers()
 
