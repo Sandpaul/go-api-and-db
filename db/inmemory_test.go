@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestGetUser(t *testing.T) {
+func TestGetUsers(t *testing.T) {
 	ResetUsers()
 
 	expected_users := []model.User{
@@ -15,10 +15,36 @@ func TestGetUser(t *testing.T) {
 		{ID: 3, Name: "User 3"},
 	}
 
-	actual_users, _ := GetUsers()
+	actual_users, err := GetUsers()
+
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
 
 	if !slices.Equal(expected_users, actual_users) {
 		t.Errorf("Expected users: %v but got: %v", expected_users, actual_users)
+	}
+}
+
+func TestGetUser(t *testing.T) {
+	ResetUsers()
+
+	expectedUser := model.User{ID:2, Name: "User 2"}
+
+	user, err := GetUser(2)
+
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+
+	if user != expectedUser {
+		t.Errorf("expected %v, got %v", expectedUser, user)
+	}
+
+	_, err = GetUser(999)
+
+	if err == nil {
+		t.Errorf("expected an error for non-existing user ID, got nil")
 	}
 }
 
