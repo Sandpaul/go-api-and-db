@@ -10,6 +10,9 @@ variables:
   containerRegistry: 'acrbjssacademy.azurecr.io' # eg 'acrbjssacademy.azurecr.io'
   dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
   tag: '$(Build.BuildId)'
+  azureSubscription: 'Azure RM'
+  appName: 'acr-paul-sandford'
+
 
 stages:
 - stage: Build
@@ -41,3 +44,18 @@ stages:
           echo "Running tests..."
           go test ./...
         displayName: 'Run tests'
+- stage: Deploy
+  displayName: 'Deploy to Azure Web App'
+  dependsOn: Test
+  jobs:
+  - job: Deploy
+    displayName: 'Deploy Azure Web App'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: AzureWebAppContainer@1
+      displayName: 'Azure Web App on Container Deploy'
+      inputs:
+        azureSubscription: $(azureSubscription)
+        appName: $(appName)
+        containers: $(containerRegistry)/$(imageRepository):$(tag)
