@@ -1,13 +1,14 @@
-FROM golang:1.23.0-alpine3.19
-
-RUN mkdir /app
-
-ADD . /app
-
+# Build stage
+FROM golang:1.22.3-alpine3.19 AS build
 WORKDIR /app
-
-EXPOSE 8080
-
+COPY . .
+COPY go.mod ./
+RUN go mod download && go mod verify
 RUN go build -o main .
 
-CMD ["/app/main"]
+# Final stage
+FROM scratch
+WORKDIR /app
+COPY --from=build /app/main .
+EXPOSE 8080
+CMD ["./main"]
