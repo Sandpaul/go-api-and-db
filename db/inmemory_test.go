@@ -6,6 +6,22 @@ import (
 	"testing"
 )
 
+func TestGetUser(t *testing.T) {
+	ResetUsers()
+
+	expected_users := []model.User{
+		{ID: 1, Name: "User 1"},
+		{ID: 2, Name: "User 2"},
+		{ID: 3, Name: "User 3"},
+	}
+
+	actual_users, _ := GetUsers()
+
+	if !slices.Equal(expected_users, actual_users) {
+		t.Errorf("Expected users: %v but got: %v", expected_users, actual_users)
+	}
+}
+
 func TestDeleteUser(t *testing.T) {
 	ResetUsers()
 
