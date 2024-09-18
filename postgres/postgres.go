@@ -2,17 +2,18 @@ package postgres
 
 import (
 	"acme/model"
-	"database/sql"
-	"fmt"
-	_ "github.com/lib/pq"
+	// "database/sql"
 	"errors"
+	"fmt"
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 )
 
-var DB *sql.DB
+var DB *sqlx.DB
 
 func InitDB(connectionString string) error {
 
-	db, err := sql.Open("postgres", connectionString)
+	db, err := sqlx.Open("postgres", connectionString)
 	if err != nil {
 		return fmt.Errorf("error connecting to the database: %w", err)
 	}
@@ -36,27 +37,15 @@ func InitDB(connectionString string) error {
 }
 
 func GetUsers() ([]model.User, error) {
-	rows, err := DB.Query("SELECT id, name FROM users")
+
+	users := []model.User{}
+
+	err := sqlx.Select(DB, &users, "SELECT * FROM users")
 
 	if err != nil {
 		fmt.Println("Error querying the database:", err)
 		return []model.User{}, errors.New("database could not be queried")
 	}
-
-	defer rows.Close()
-
-	users := []model.User{}
-
-	for rows.Next() {
-		var user model.User
-
-		if err := rows.Scan(&user.ID, &user.Name); err != nil {
-			fmt.Println("Error scanning row values:", err)
-			return []model.User{}, errors.New("database could not be queried")
-		}
-		users = append(users, user)
-	}
-
 
 	return users, nil
 }
