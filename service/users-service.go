@@ -3,12 +3,14 @@ package service
 import (
 	"acme/db"
 	"acme/model"
+	"acme/postgres"
 	"errors"
 	"fmt"
 )
 
 func GetUsers() ([]model.User, error) {
-	users, err := db.GetUsers()
+	users, err := postgres.GetUsers()
+	
 	if err != nil {
 		fmt.Println("Error getting users from DB:", err)
 		return nil, errors.New("there was an error getting the users from the database")

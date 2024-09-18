@@ -1,9 +1,11 @@
 package postgres
 
 import (
+	"acme/model"
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
+	"errors"
 )
 
 var DB *sql.DB
@@ -31,4 +33,30 @@ func InitDB(connectionString string) error {
 
 	fmt.Println("Successfully connected to the database!")
 	return nil
+}
+
+func GetUsers() ([]model.User, error) {
+	rows, err := DB.Query("SELECT id, name FROM users")
+
+	if err != nil {
+		fmt.Println("Error querying the database:", err)
+		return []model.User{}, errors.New("database could not be queried")
+	}
+
+	defer rows.Close()
+
+	users := []model.User{}
+
+	for rows.Next() {
+		var user model.User
+
+		if err := rows.Scan(&user.ID, &user.Name); err != nil {
+			fmt.Println("Error scanning row values:", err)
+			return []model.User{}, errors.New("database could not be queried")
+		}
+		users = append(users, user)
+	}
+
+
+	return users, nil
 }
