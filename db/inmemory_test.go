@@ -29,7 +29,7 @@ func TestGetUsers(t *testing.T) {
 func TestGetUser(t *testing.T) {
 	ResetUsers()
 
-	expectedUser := model.User{ID:2, Name: "User 2"}
+	expectedUser := model.User{ID: 2, Name: "User 2"}
 
 	user, err := GetUser(2)
 

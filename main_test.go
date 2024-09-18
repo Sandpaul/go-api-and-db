@@ -153,7 +153,7 @@ func TestGetSingleUserNotFound(t *testing.T) {
 	router := http.NewServeMux()
 	router.HandleFunc("GET /api/users/{id}", api.GetSingleUser)
 	router.ServeHTTP(rr, req)
-	
+
 	if status := rr.Code; status != http.StatusNotFound {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
 	}
@@ -214,4 +214,3 @@ func TestDeleteUserHandlerNotFound(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
 	}
 }
-
