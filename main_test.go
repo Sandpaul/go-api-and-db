@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -124,6 +125,62 @@ func TestGetUsersHandlerWithServer(t *testing.T) {
 	}
 }
 
+func TestGetSingleUserHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/api/users/2", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+
+	router := http.NewServeMux()
+	router.HandleFunc("GET /api/users/{id}", api.GetSingleUser)
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusOK)
+	}
+}
+
+func TestGetSingleUserNotFound(t *testing.T) {
+	req, err := http.NewRequest("GET", "/api/users/999", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+
+	router := http.NewServeMux()
+	router.HandleFunc("GET /api/users/{id}", api.GetSingleUser)
+	router.ServeHTTP(rr, req)
+	
+	if status := rr.Code; status != http.StatusNotFound {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
+	}
+}
+
+func TestCreateUserHandler(t *testing.T) {
+	userData := `{"Name": "New User"}`
+	req, err := http.NewRequest("POST", "/api/users", io.NopCloser(strings.NewReader(userData)))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+
+	handler := http.HandlerFunc(api.CreateUser)
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusCreated {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusCreated)
+	}
+
+	expected := "User created successfully: 4"
+	if rr.Body.String() != expected {
+		t.Errorf("handler returned unexpected body: got %v, wanted %v", rr.Body.String(), expected)
+	}
+}
+
 func TestDeleteUserHandler(t *testing.T) {
 	req, err := http.NewRequest("DELETE", "/api/users/1", nil)
 	if err != nil {
@@ -140,3 +197,21 @@ func TestDeleteUserHandler(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 }
+
+func TestDeleteUserHandlerNotFound(t *testing.T) {
+	req, err := http.NewRequest("DELETE", "/api/users/999", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+
+	router := http.NewServeMux()
+	router.HandleFunc("DELETE /api/users/{id}", api.DeleteUser)
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusNotFound {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
+	}
+}
+
