@@ -31,7 +31,7 @@ func DeleteUser(id int) error {
 }
 
 func GetSingleUser(id int) (model.User, error) {
-	user, err := db.GetUser(id)
+	user, err := postgres.GetUser(id)
 
 	if err != nil {
 		fmt.Println("Error retrieving user from DB:", err)

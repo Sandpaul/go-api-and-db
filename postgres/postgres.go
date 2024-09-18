@@ -61,3 +61,15 @@ func AddUser(user model.User) (id int, err error) {
 
 	return id, nil
 }
+
+func GetUser(id int) (user model.User, err error) {
+
+	err = DB.QueryRow("SELECT * FROM users WHERE id = $1", id).Scan(&user.ID, &user.Name)
+
+	if err != nil {
+		fmt.Println("Error retrieving user from the database:", err)
+		return user, errors.New("could not retrieve user")
+	}
+
+	return user, nil
+}
