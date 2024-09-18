@@ -2,12 +2,21 @@ package main
 
 import (
 	"acme/api"
+	"acme/postgres"
 	"fmt"
 	"io"
 	"net/http"
 )
 
 func main() {
+
+	connectionString := "user=postgres dbname=acme password=password host=localhost sslmode=disable"
+	if err := postgres.InitDB(connectionString); err != nil {
+		fmt.Println("Error initialising the database:", err)
+		return
+	}
+
+	defer postgres.DB.Close()
 
 	router := http.NewServeMux()
 
