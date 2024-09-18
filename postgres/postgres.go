@@ -73,3 +73,23 @@ func GetUser(id int) (user model.User, err error) {
 
 	return user, nil
 }
+
+func DeleteUser(id int) error {
+
+	result, err := DB.Exec("DELETE FROM users WHERE id = $1", id)
+
+	if err != nil {
+		fmt.Println("Error deleting user from the database:", err)
+		return errors.New("could not delete user")
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("error getting rows affected: %w", err)
+	}
+	if rowsAffected == 0 {
+		return errors.New("user not found")
+	}
+
+	return nil
+}

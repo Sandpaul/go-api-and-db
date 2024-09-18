@@ -20,7 +20,7 @@ func GetUsers() ([]model.User, error) {
 }
 
 func DeleteUser(id int) error {
-	err := db.DeleteUser(id)
+	err := postgres.DeleteUser(id)
 
 	if err != nil {
 		fmt.Println("Error deleting user from DB:", err)
