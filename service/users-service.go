@@ -1,7 +1,6 @@
 package service
 
 import (
-	"acme/db"
 	"acme/model"
 	"acme/postgres"
 	"errors"
@@ -53,7 +52,7 @@ func CreateUser(user model.User) (id int, err error) {
 }
 
 func UpdateUserName(id int, user model.User) (model.User, error) {
-	user, err := db.UpdateUserName(id, user)
+	user, err := postgres.UpdateUserName(id, user)
 
 	if err != nil {
 		fmt.Println("Error updating user name in DB:", err)

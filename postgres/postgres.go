@@ -2,9 +2,10 @@ package postgres
 
 import (
 	"acme/model"
-	// "database/sql"
+	"database/sql"
 	"errors"
 	"fmt"
+
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
@@ -92,4 +93,22 @@ func DeleteUser(id int) error {
 	}
 
 	return nil
+}
+
+func UpdateUserName(id int, user model.User) (updatedUser model.User, err error) {
+
+	query := "UPDATE users SET name = $1 WHERE id = $2 RETURNING *"
+
+	err = DB.QueryRow(query, user.Name, id).Scan(&updatedUser.ID, &updatedUser.Name)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			fmt.Println("user not found")
+			return model.User{}, nil
+		}
+		fmt.Println("Error updating user name in the database:", err)
+		return model.User{}, errors.New("could not update user name")
+	}
+
+	return updatedUser, nil
 }
