@@ -10,7 +10,7 @@ import (
 
 func GetUsers() ([]model.User, error) {
 	users, err := postgres.GetUsers()
-	
+
 	if err != nil {
 		fmt.Println("Error getting users from DB:", err)
 		return nil, errors.New("there was an error getting the users from the database")
@@ -41,8 +41,8 @@ func GetSingleUser(id int) (model.User, error) {
 	return user, nil
 }
 
-func CreateUser(user model.User) (int, error) {
-	id, err := db.AddUser(user)
+func CreateUser(user model.User) (id int, err error) {
+	id, err = postgres.AddUser(user)
 
 	if err != nil {
 		fmt.Println("Error adding user to DB:", err)

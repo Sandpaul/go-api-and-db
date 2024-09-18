@@ -49,3 +49,15 @@ func GetUsers() ([]model.User, error) {
 
 	return users, nil
 }
+
+func AddUser(user model.User) (id int, err error) {
+
+	err = DB.QueryRow("INSERT INTO users (name) VALUES ($1) RETURNING id", user.Name).Scan(&id)
+
+	if err != nil {
+		fmt.Println("Error inserting user into the database:", err)
+		return 0, errors.New("could not insert user")
+	}
+
+	return id, nil
+}
