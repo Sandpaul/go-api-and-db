@@ -1,4 +1,4 @@
-package db
+package inmemory
 
 import (
 	"acme/model"
@@ -6,26 +6,29 @@ import (
 	"slices"
 )
 
+type InMemoryRepository struct{}
+
 var users []model.User
 var count int = 3
 
-func init() {
-	ResetUsers()
+func NewInMemoryRepository() *InMemoryRepository {
+	InitDB()
+	return &InMemoryRepository{}
 }
 
-func ResetUsers() {
-	users = []model.User{
+func InitDB() {
+		users = []model.User{
 		{ID: 1, Name: "User 1"},
 		{ID: 2, Name: "User 2"},
 		{ID: 3, Name: "User 3"},
 	}
 }
 
-func GetUsers() ([]model.User, error) {
+func (repo *InMemoryRepository) GetUsers() ([]model.User, error) {
 	return users, nil
 }
 
-func GetUser(id int) (model.User, error) {
+func (repo *InMemoryRepository) GetUser(id int) (model.User, error) {
 	var user model.User
 
 	for _, user := range users {
@@ -37,7 +40,7 @@ func GetUser(id int) (model.User, error) {
 	return user, errors.New("user id not found")
 }
 
-func AddUser(user model.User) (id int, err error) {
+func (repo *InMemoryRepository) AddUser(user model.User) (id int, err error) {
 	count++
 	user.ID = count
 
@@ -46,7 +49,7 @@ func AddUser(user model.User) (id int, err error) {
 	return count, nil
 }
 
-func DeleteUser(id int) error {
+func (repo *InMemoryRepository) DeleteUser(id int) error {
 
 	for index, user := range users {
 		if user.ID == id {
@@ -58,7 +61,7 @@ func DeleteUser(id int) error {
 	return errors.New("user id not found to delete")
 }
 
-func UpdateUserName(id int, updatedUser model.User) (model.User, error) {
+func (repo *InMemoryRepository) UpdateUserName(id int, updatedUser *model.User) (model.User, error) {
 	for index, user := range users {
 		if user.ID == id {
 			users[index].Name = updatedUser.Name
@@ -67,4 +70,8 @@ func UpdateUserName(id int, updatedUser model.User) (model.User, error) {
 	}
 
 	return model.User{}, errors.New("user id not found to update")
+}
+
+func (repo *InMemoryRepository) Close() {
+	
 }

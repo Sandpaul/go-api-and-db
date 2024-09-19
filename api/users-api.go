@@ -10,6 +10,16 @@ import (
 	"strconv"
 )
 
+type UserAPI struct {
+    userService *service.UserService
+}
+
+func NewUserAPI(userService *service.UserService) *UserAPI {
+    return &UserAPI{
+        userService: userService,
+    }
+}
+
 func parseId(idStr string) (id int, err error) {
 	id, err = strconv.Atoi(idStr)
 	if err != nil {
@@ -30,9 +40,9 @@ func decodeUser(body io.ReadCloser) (user model.User, err error) {
 	return user, nil
 }
 
-func GetUsers(writer http.ResponseWriter, request *http.Request) {
+func (api *UserAPI) GetUsers(writer http.ResponseWriter, request *http.Request) {
 
-	users, err := service.GetUsers()
+	users, err := api.userService.GetUsers()
 
 	if err != nil {
 		http.Error(writer, "Internal Server Error", http.StatusInternalServerError)
@@ -43,7 +53,7 @@ func GetUsers(writer http.ResponseWriter, request *http.Request) {
 
 }
 
-func GetSingleUser(writer http.ResponseWriter, request *http.Request) {
+func (api *UserAPI) GetSingleUser(writer http.ResponseWriter, request *http.Request) {
 
 	id, err := parseId(request.PathValue("id"))
 
@@ -52,7 +62,7 @@ func GetSingleUser(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	user, err := service.GetSingleUser(id)
+	user, err := api.userService.GetSingleUser(id)
 
 	if err != nil {
 		http.Error(writer, "user not found", http.StatusNotFound)
@@ -62,7 +72,7 @@ func GetSingleUser(writer http.ResponseWriter, request *http.Request) {
 	json.NewEncoder(writer).Encode(user)
 }
 
-func CreateUser(writer http.ResponseWriter, request *http.Request) {
+func (api *UserAPI) CreateUser(writer http.ResponseWriter, request *http.Request) {
 
 	user, err := decodeUser(request.Body)
 
@@ -71,7 +81,7 @@ func CreateUser(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	id, err := service.CreateUser(user)
+	id, err := api.userService.CreateUser(user)
 
 	if err != nil {
 		http.Error(writer, "internal server error", http.StatusInternalServerError)
@@ -81,7 +91,7 @@ func CreateUser(writer http.ResponseWriter, request *http.Request) {
 	fmt.Fprintf(writer, "User created successfully: %d", id)
 }
 
-func DeleteUser(writer http.ResponseWriter, request *http.Request) {
+func (api *UserAPI) DeleteUser(writer http.ResponseWriter, request *http.Request) {
 
 	id, err := parseId(request.PathValue("id"))
 	if err != nil {
@@ -89,7 +99,7 @@ func DeleteUser(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	err = service.DeleteUser(id)
+	err = api.userService.DeleteUser(id)
 
 	if err != nil {
 		http.Error(writer, "user not found", http.StatusNotFound)
@@ -99,7 +109,7 @@ func DeleteUser(writer http.ResponseWriter, request *http.Request) {
 	writer.WriteHeader(http.StatusOK)
 }
 
-func UpdateUserName(writer http.ResponseWriter, request *http.Request) {
+func (api *UserAPI) UpdateUserName(writer http.ResponseWriter, request *http.Request) {
 
 	id, err := parseId(request.PathValue("id"))
 
@@ -115,7 +125,7 @@ func UpdateUserName(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	updated, err := service.UpdateUserName(id, user)
+	updated, err := api.userService.UpdateUserName(id, user)
 
 	if err != nil {
 		http.Error(writer, "user not found", http.StatusNotFound)

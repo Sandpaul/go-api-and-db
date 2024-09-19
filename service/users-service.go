@@ -1,14 +1,24 @@
 package service
 
 import (
+	"acme/db"
 	"acme/model"
-	"acme/postgres"
 	"errors"
 	"fmt"
 )
 
-func GetUsers() ([]model.User, error) {
-	users, err := postgres.GetUsers()
+type UserService struct {
+	repository db.Repository
+}
+
+func NewUserService(repo db.Repository) *UserService {
+	return &UserService{
+		repository: repo,
+	}
+}
+
+func (s *UserService) GetUsers() ([]model.User, error) {
+	users, err := s.repository.GetUsers()
 
 	if err != nil {
 		fmt.Println("Error getting users from DB:", err)
@@ -18,8 +28,8 @@ func GetUsers() ([]model.User, error) {
 	return users, nil
 }
 
-func DeleteUser(id int) error {
-	err := postgres.DeleteUser(id)
+func (s *UserService) DeleteUser(id int) error {
+	err := s.repository.DeleteUser(id)
 
 	if err != nil {
 		fmt.Println("Error deleting user from DB:", err)
@@ -29,8 +39,8 @@ func DeleteUser(id int) error {
 	return nil
 }
 
-func GetSingleUser(id int) (model.User, error) {
-	user, err := postgres.GetUser(id)
+func (s *UserService) GetSingleUser(id int) (model.User, error) {
+	user, err := s.repository.GetUser(id)
 
 	if err != nil {
 		fmt.Println("Error retrieving user from DB:", err)
@@ -40,8 +50,8 @@ func GetSingleUser(id int) (model.User, error) {
 	return user, nil
 }
 
-func CreateUser(user model.User) (id int, err error) {
-	id, err = postgres.AddUser(user)
+func (s *UserService) CreateUser(user model.User) (id int, err error) {
+	id, err = s.repository.AddUser(user)
 
 	if err != nil {
 		fmt.Println("Error adding user to DB:", err)
@@ -51,13 +61,13 @@ func CreateUser(user model.User) (id int, err error) {
 	return id, nil
 }
 
-func UpdateUserName(id int, user model.User) (model.User, error) {
-	user, err := postgres.UpdateUserName(id, user)
+func (s *UserService) UpdateUserName(id int, user model.User) (model.User, error) {
+	updatedUser, err := s.repository.UpdateUserName(id, &user)
 
 	if err != nil {
 		fmt.Println("Error updating user name in DB:", err)
 		return model.User{}, errors.New("could not update user name")
 	}
 
-	return user, nil
+	return updatedUser, nil
 }
