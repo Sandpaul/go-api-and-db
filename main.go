@@ -19,7 +19,7 @@ func CorsMiddleware(next http.Handler) http.Handler {
 
 func main() {
 
-	config := config.Postgres
+	config := config.LoadDataBaseConfig()
 
 	var userRepo user.Repository
 

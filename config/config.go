@@ -1,5 +1,12 @@
 package config
 
+import (
+	"log"
+	"os"
+
+	"github.com/joho/godotenv"
+)
+
 type DatabaseConfig struct {
 	Type     string
 	Host     string
@@ -9,6 +16,23 @@ type DatabaseConfig struct {
 	DBName   string
 }
 
-var InMemory DatabaseConfig = DatabaseConfig{Type: "inmemory", Host: "N/A", User: "", Password: ""}
+func LoadDataBaseConfig(filename ...string) DatabaseConfig {
+	envFile := ".env"
+	if len(filename) > 0 {
+		envFile = filename[0]
+	}
 
-var Postgres DatabaseConfig = DatabaseConfig{Type: "postgres", DBName: "acme", Host: "localhost", User: "postgres", Password: "password", SSLMode: "disable"}
+	err := godotenv.Load(envFile)
+	if err != nil {
+		log.Println(".env file not found, using environment variables")
+	}
+
+	return DatabaseConfig{
+		Type:     os.Getenv("DBTYPE"),
+		Host:     os.Getenv("DBHOST"),
+		User:     os.Getenv("DBUSER"),
+		Password: os.Getenv("DBPASSWORD"),
+		SSLMode:  os.Getenv("DBSSLMODE"),
+		DBName:   os.Getenv("DBNAME"),
+	}
+}
