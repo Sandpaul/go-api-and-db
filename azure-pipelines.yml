@@ -1,0 +1,44 @@
+trigger:
+- main  # Define the branch to trigger the pipeline
+
+resources:
+- repo: self
+
+variables:
+  dockerRegistryServiceConnection: 'Azure RM'
+  imageRepository: 'sinclair/sandford-example-app' #eg 'amiga/dan-webb-example-app'
+  containerRegistry: 'acrbjssacademy.azurecr.io' # eg 'acrbjssacademy.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+  tag: '$(Build.BuildId)'
+
+stages:
+- stage: Build
+  displayName: 'Build and push Docker image'
+  jobs:
+  - job: Build
+    displayName: 'Build'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: Docker@2
+      inputs:
+        repository: $(imageRepository)
+        command: 'buildAndPush'
+        Dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+- stage: Test
+  displayName: 'Run tests'
+  dependsOn: Build
+  jobs:
+  - job: Test
+    displayName: 'Run tests'
+    pool:
+      vmImage: 'ubuntu-latest'  
+    steps:
+    - script: |
+        echo "Running tests..."
+        # Run the Go tests from the project directory
+        go test ./...
+      displayName: 'Run tests'
