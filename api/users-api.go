@@ -11,13 +11,13 @@ import (
 )
 
 type UserAPI struct {
-    userService *service.UserService
+	userService *service.UserService
 }
 
 func NewUserAPI(userService *service.UserService) *UserAPI {
-    return &UserAPI{
-        userService: userService,
-    }
+	return &UserAPI{
+		userService: userService,
+	}
 }
 
 func parseId(idStr string) (id int, err error) {

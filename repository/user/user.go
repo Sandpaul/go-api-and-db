@@ -1,4 +1,4 @@
-package db
+package user
 
 import (
 	"acme/model"
@@ -10,5 +10,5 @@ type Repository interface {
 	AddUser(user model.User) (id int, err error)
 	UpdateUserName(id int, user *model.User) (model.User, error)
 	DeleteUser(id int) error
-		Close()
+	Close()
 }

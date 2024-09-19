@@ -3,27 +3,45 @@ package main
 import (
 	"acme/api"
 	"acme/config"
-	"acme/db"
-	"acme/db/inmemory"
 	"acme/db/postgres"
+	"acme/repository/user"
 	"acme/service"
 	"fmt"
-	"io"
 	"net/http"
 )
+
+func CorsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		writer.Header().Set("Access-Control-Allow-Origin", "*")
+		next.ServeHTTP(writer, request)
+	})
+}
 
 func main() {
 
 	config := config.Postgres
 
-	dbRepo, err := initialiseDatabase(config)
-	if err != nil {
-		fmt.Println("Error initialising the database:", err)
-		return
-	}
-	defer dbRepo.Close()
+	var userRepo user.Repository
 
-	userService := service.NewUserService(dbRepo)
+	switch config.Type {
+	case "postgres":
+		connectionString := fmt.Sprintf("user=%s dbname=%s password=%s host=%s sslmode=%s", config.User, config.DBName, config.Password, config.Host, config.SSLMode)
+
+		db, err := postgres.PostgresConnection(connectionString)
+		if err != nil {
+			panic(err)
+		}
+
+		userRepo = user.NewPostgresUserRepository(db.DB)
+
+	case "inmemory":
+		userRepo = user.NewInMemoryUserRepository()
+
+	default:
+		fmt.Errorf("unsupported database type: %s", config.Type)
+	}
+
+	userService := service.NewUserService(userRepo)
 	userAPI := api.NewUserAPI(userService)
 
 	router := http.NewServeMux()
@@ -35,26 +53,13 @@ func main() {
 	router.HandleFunc("DELETE /api/users/{id}", userAPI.DeleteUser)
 	router.HandleFunc("PATCH /api/users/{id}", userAPI.UpdateUserName)
 
-	// Starting the HTTP server on port 8080 and providing router variable to ListenAndServe
 	fmt.Println("Server listening on port 8080...")
-	err = http.ListenAndServe(":8080", router)
+	err := http.ListenAndServe(":8080", CorsMiddleware(router))
 	if err != nil {
 		fmt.Println("Error starting server:", err)
 	}
 }
 
 func rootHandler(writer http.ResponseWriter, request *http.Request) {
-	io.WriteString(writer, "Hello, World!")
-}
-
-func initialiseDatabase(config config.DatabaseConfig) (db.Repository, error) {
-    switch config.Type {
-    case "postgres":
-        connectionString := fmt.Sprintf("user=%s dbname=%s password=%s host=%s sslmode=%s", config.User, config.DBName, config.Password, config.Host, config.SSLMode)
-        return postgres.NewPostgresRepository(connectionString)
-    case "inmemory":
-        return inmemory.NewInMemoryRepository(), nil
-    default:
-        return nil, fmt.Errorf("unsupported database type: %s", config.Type)
-    }
+	fmt.Println(writer, "Hello, World!")
 }

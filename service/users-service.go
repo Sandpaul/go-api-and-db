@@ -1,17 +1,17 @@
 package service
 
 import (
-	"acme/db"
 	"acme/model"
+	"acme/repository/user"
 	"errors"
 	"fmt"
 )
 
 type UserService struct {
-	repository db.Repository
+	repository user.Repository
 }
 
-func NewUserService(repo db.Repository) *UserService {
+func NewUserService(repo user.Repository) *UserService {
 	return &UserService{
 		repository: repo,
 	}

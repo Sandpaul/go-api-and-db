@@ -1,26 +1,22 @@
 package postgres
 
 import (
-	"acme/model"
-	"database/sql"
-	"errors"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/pressly/goose"
+
 	_ "github.com/lib/pq"
 )
 
-type PostgresRepository struct {
+type Postgres struct {
 	DB *sqlx.DB
 }
 
-
-func NewPostgresRepository(connectionString string) (*PostgresRepository, error) {
-
+func PostgresConnection(connectionString string) (*Postgres, error) {
 	db, err := sqlx.Open("postgres", connectionString)
 	if err != nil {
-		return nil, fmt.Errorf("error connecting to the database: %w", err)
+		return nil, fmt.Errorf("error connection to the database: %w", err)
 	}
 
 	err = goose.Up(db.DB, "./migrations")
@@ -32,86 +28,9 @@ func NewPostgresRepository(connectionString string) (*PostgresRepository, error)
 		return nil, fmt.Errorf("error pinging the database: %w", err)
 	}
 
+	db.SetMaxOpenConns(25)
+	db.SetMaxIdleConns(25)
+
 	fmt.Println("Successfully connected to the database!")
-	return &PostgresRepository{DB: db}, nil
-}
-
-func (repo *PostgresRepository) GetUsers() ([]model.User, error) {
-
-	users := []model.User{}
-
-	err := sqlx.Select(repo.DB, &users, "SELECT * FROM users")
-
-	if err != nil {
-		fmt.Println("Error querying the database:", err)
-		return []model.User{}, errors.New("database could not be queried")
-	}
-
-	return users, nil
-}
-
-func (repo *PostgresRepository) AddUser(user model.User) (id int, err error) {
-
-	err = repo.DB.QueryRow("INSERT INTO users (name) VALUES ($1) RETURNING id", user.Name).Scan(&id)
-
-	if err != nil {
-		fmt.Println("Error inserting user into the database:", err)
-		return 0, errors.New("could not insert user")
-	}
-
-	return id, nil
-}
-
-func (repo *PostgresRepository) GetUser(id int) (user model.User, err error) {
-
-	err = repo.DB.QueryRow("SELECT * FROM users WHERE id = $1", id).Scan(&user.ID, &user.Name)
-
-	if err != nil {
-		fmt.Println("Error retrieving user from the database:", err)
-		return user, errors.New("could not retrieve user")
-	}
-
-	return user, nil
-}
-
-func (repo *PostgresRepository) DeleteUser(id int) error {
-
-	result, err := repo.DB.Exec("DELETE FROM users WHERE id = $1", id)
-
-	if err != nil {
-		fmt.Println("Error deleting user from the database:", err)
-		return errors.New("could not delete user")
-	}
-
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("error getting rows affected: %w", err)
-	}
-	if rowsAffected == 0 {
-		return errors.New("user not found")
-	}
-
-	return nil
-}
-
-func (repo *PostgresRepository) UpdateUserName(id int, user *model.User) (updatedUser model.User, err error) {
-
-	query := "UPDATE users SET name = $1 WHERE id = $2 RETURNING *"
-
-	err = repo.DB.QueryRow(query, user.Name, id).Scan(&updatedUser.ID, &updatedUser.Name)
-
-	if err != nil {
-		if err == sql.ErrNoRows {
-			fmt.Println("user not found")
-			return model.User{}, nil
-		}
-		fmt.Println("Error updating user name in the database:", err)
-		return model.User{}, errors.New("could not update user name")
-	}
-
-	return updatedUser, nil
-}
-
-func (repo *PostgresRepository) Close() {
-	
+	return &Postgres{DB: db}, nil
 }

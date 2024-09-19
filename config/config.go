@@ -1,12 +1,12 @@
 package config
 
 type DatabaseConfig struct {
-	Type string
-	Host string
-	User string
+	Type     string
+	Host     string
+	User     string
 	Password string
-	SSLMode string
-	DBName string
+	SSLMode  string
+	DBName   string
 }
 
 var InMemory DatabaseConfig = DatabaseConfig{Type: "inmemory", Host: "N/A", User: "", Password: ""}

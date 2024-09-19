@@ -1,4 +1,4 @@
-package inmemory
+package user
 
 import (
 	"acme/model"
@@ -6,29 +6,29 @@ import (
 	"slices"
 )
 
-type InMemoryRepository struct{}
+type InMemoryUserRepository struct{}
 
-var users []model.User
 var count int = 3
+var users []model.User
 
-func NewInMemoryRepository() *InMemoryRepository {
+func NewInMemoryUserRepository() *InMemoryUserRepository {
 	InitDB()
-	return &InMemoryRepository{}
+	return &InMemoryUserRepository{}
 }
 
 func InitDB() {
-		users = []model.User{
+	users = []model.User{
 		{ID: 1, Name: "User 1"},
 		{ID: 2, Name: "User 2"},
 		{ID: 3, Name: "User 3"},
 	}
 }
 
-func (repo *InMemoryRepository) GetUsers() ([]model.User, error) {
+func (repo *InMemoryUserRepository) GetUsers() ([]model.User, error) {
 	return users, nil
 }
 
-func (repo *InMemoryRepository) GetUser(id int) (model.User, error) {
+func (repo *InMemoryUserRepository) GetUser(id int) (model.User, error) {
 	var user model.User
 
 	for _, user := range users {
@@ -40,7 +40,7 @@ func (repo *InMemoryRepository) GetUser(id int) (model.User, error) {
 	return user, errors.New("user id not found")
 }
 
-func (repo *InMemoryRepository) AddUser(user model.User) (id int, err error) {
+func (repo *InMemoryUserRepository) AddUser(user model.User) (id int, err error) {
 	count++
 	user.ID = count
 
@@ -49,7 +49,7 @@ func (repo *InMemoryRepository) AddUser(user model.User) (id int, err error) {
 	return count, nil
 }
 
-func (repo *InMemoryRepository) DeleteUser(id int) error {
+func (repo *InMemoryUserRepository) DeleteUser(id int) error {
 
 	for index, user := range users {
 		if user.ID == id {
@@ -61,7 +61,7 @@ func (repo *InMemoryRepository) DeleteUser(id int) error {
 	return errors.New("user id not found to delete")
 }
 
-func (repo *InMemoryRepository) UpdateUserName(id int, updatedUser *model.User) (model.User, error) {
+func (repo *InMemoryUserRepository) UpdateUserName(id int, updatedUser *model.User) (model.User, error) {
 	for index, user := range users {
 		if user.ID == id {
 			users[index].Name = updatedUser.Name
@@ -72,6 +72,6 @@ func (repo *InMemoryRepository) UpdateUserName(id int, updatedUser *model.User) 
 	return model.User{}, errors.New("user id not found to update")
 }
 
-func (repo *InMemoryRepository) Close() {
-	
+func (repo *InMemoryUserRepository) Close() {
+
 }
