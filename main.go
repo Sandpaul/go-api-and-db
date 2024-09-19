@@ -61,5 +61,5 @@ func main() {
 }
 
 func rootHandler(writer http.ResponseWriter, request *http.Request) {
-	fmt.Println(writer, "Hello, World!")
+	fmt.Fprintf(writer, "Hello, World!")
 }

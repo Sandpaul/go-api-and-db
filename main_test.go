@@ -3,6 +3,8 @@ package main
 import (
 	"acme/api"
 	"acme/model"
+	"acme/repository/user"
+	"acme/service"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -59,6 +61,10 @@ func TestRootHandlerWithServer(t *testing.T) {
 }
 
 func TestGetUsersHandler(t *testing.T) {
+
+	service := service.NewUserService(user.NewInMemoryUserRepository())
+	api := api.NewUserAPI(service)
+
 	req, err := http.NewRequest("GET", "/api/users", nil)
 	if err != nil {
 		t.Fatal(err)
@@ -91,6 +97,10 @@ func TestGetUsersHandler(t *testing.T) {
 }
 
 func TestGetUsersHandlerWithServer(t *testing.T) {
+
+	service := service.NewUserService(user.NewInMemoryUserRepository())
+	api := api.NewUserAPI(service)
+
 	server := httptest.NewServer(http.HandlerFunc(api.GetUsers))
 	defer server.Close()
 
@@ -126,6 +136,10 @@ func TestGetUsersHandlerWithServer(t *testing.T) {
 }
 
 func TestGetSingleUserHandler(t *testing.T) {
+
+	service := service.NewUserService(user.NewInMemoryUserRepository())
+	api := api.NewUserAPI(service)
+
 	req, err := http.NewRequest("GET", "/api/users/2", nil)
 	if err != nil {
 		t.Fatal(err)
@@ -143,6 +157,10 @@ func TestGetSingleUserHandler(t *testing.T) {
 }
 
 func TestGetSingleUserNotFound(t *testing.T) {
+
+	service := service.NewUserService(user.NewInMemoryUserRepository())
+	api := api.NewUserAPI(service)
+
 	req, err := http.NewRequest("GET", "/api/users/999", nil)
 	if err != nil {
 		t.Fatal(err)
@@ -160,6 +178,10 @@ func TestGetSingleUserNotFound(t *testing.T) {
 }
 
 func TestCreateUserHandler(t *testing.T) {
+
+	service := service.NewUserService(user.NewInMemoryUserRepository())
+	api := api.NewUserAPI(service)
+
 	userData := `{"Name": "New User"}`
 	req, err := http.NewRequest("POST", "/api/users", io.NopCloser(strings.NewReader(userData)))
 	if err != nil {
@@ -182,6 +204,10 @@ func TestCreateUserHandler(t *testing.T) {
 }
 
 func TestDeleteUserHandler(t *testing.T) {
+
+	service := service.NewUserService(user.NewInMemoryUserRepository())
+	api := api.NewUserAPI(service)
+
 	req, err := http.NewRequest("DELETE", "/api/users/1", nil)
 	if err != nil {
 		t.Fatal(err)
@@ -199,6 +225,10 @@ func TestDeleteUserHandler(t *testing.T) {
 }
 
 func TestDeleteUserHandlerNotFound(t *testing.T) {
+
+	service := service.NewUserService(user.NewInMemoryUserRepository())
+	api := api.NewUserAPI(service)
+
 	req, err := http.NewRequest("DELETE", "/api/users/999", nil)
 	if err != nil {
 		t.Fatal(err)
