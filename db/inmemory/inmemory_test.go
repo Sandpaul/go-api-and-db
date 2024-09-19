@@ -2,12 +2,14 @@ package inmemory
 
 import (
 	"acme/model"
-	"slices"
+	"acme/repository/user"
+	"reflect"
 	"testing"
 )
 
 func TestGetUsers(t *testing.T) {
-	ResetUsers()
+
+	repo := user.NewInMemoryUserRepository()
 
 	expected_users := []model.User{
 		{ID: 1, Name: "User 1"},
@@ -15,23 +17,23 @@ func TestGetUsers(t *testing.T) {
 		{ID: 3, Name: "User 3"},
 	}
 
-	actual_users, err := GetUsers()
-
+	actual_users, err := repo.GetUsers()
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
 
-	if !slices.Equal(expected_users, actual_users) {
+	if !reflect.DeepEqual(expected_users, actual_users) {
 		t.Errorf("Expected users: %v but got: %v", expected_users, actual_users)
 	}
 }
 
 func TestGetUser(t *testing.T) {
-	ResetUsers()
+
+	repo := user.NewInMemoryUserRepository()
 
 	expectedUser := model.User{ID: 2, Name: "User 2"}
 
-	user, err := GetUser(2)
+	user, err := repo.GetUser(2)
 
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
@@ -41,7 +43,7 @@ func TestGetUser(t *testing.T) {
 		t.Errorf("expected %v, got %v", expectedUser, user)
 	}
 
-	_, err = GetUser(999)
+	_, err = repo.GetUser(999)
 
 	if err == nil {
 		t.Errorf("expected an error for non-existing user ID, got nil")
@@ -49,7 +51,8 @@ func TestGetUser(t *testing.T) {
 }
 
 func TestAddUserAddsNewUser(t *testing.T) {
-	ResetUsers()
+
+	repo := user.NewInMemoryUserRepository()
 
 	expectedUsers := []model.User{
 		{ID: 1, Name: "User 1"},
@@ -60,7 +63,7 @@ func TestAddUserAddsNewUser(t *testing.T) {
 
 	newUser := model.User{Name: "User 4"}
 
-	newUserID, err := AddUser(newUser)
+	newUserID, err := repo.AddUser(newUser)
 
 	if err != nil {
 		t.Fatalf("expected no error, but got %v", err)
@@ -72,36 +75,47 @@ func TestAddUserAddsNewUser(t *testing.T) {
 		t.Errorf("expected new user ID to be %v, but got %v", expectedUserID, newUserID)
 	}
 
-	users, err := GetUsers()
+	users, err := repo.GetUsers()
 
 	if err != nil {
 		t.Fatalf("expected no error, but got %v", err)
 	}
 
-	if !slices.Equal(users, expectedUsers) {
+	if !reflect.DeepEqual(users, expectedUsers) {
 		t.Errorf("expected users %v, but got %v", expectedUsers, users)
 	}
 }
 
 func TestDeleteUser(t *testing.T) {
-	ResetUsers()
 
-	DeleteUser(2)
+	repo := user.NewInMemoryUserRepository()
+
+	repo.DeleteUser(2)
 
 	expectedUsers := []model.User{
 		{ID: 1, Name: "User 1"},
 		{ID: 3, Name: "User 3"},
 	}
 
-	if !slices.Equal(users, expectedUsers) {
+	users, err := repo.GetUsers()
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+
+	if !reflect.DeepEqual(users, expectedUsers) {
 		t.Errorf("Expected users %v, but got %v", expectedUsers, users)
 	}
 }
 
 func TestDeleteUserInvalidId(t *testing.T) {
-	ResetUsers()
 
-	DeleteUser(7)
+	repo := user.NewInMemoryUserRepository()
+	
+	err := repo.DeleteUser(7)
+	
+	if err == nil {
+		t.Errorf("Expected an error when deleting user with invalid ID, but got nil")
+	}
 
 	expectedUsers := []model.User{
 		{ID: 1, Name: "User 1"},
@@ -109,19 +123,25 @@ func TestDeleteUserInvalidId(t *testing.T) {
 		{ID: 3, Name: "User 3"},
 	}
 
-	if !slices.Equal(users, expectedUsers) {
+	users, err := repo.GetUsers()
+	if err != nil {
+		t.Fatalf("error getting users")
+	}
+
+	if !reflect.DeepEqual(users, expectedUsers) {
 		t.Errorf("Expected users %v, but got %v", expectedUsers, users)
 	}
 }
 
 func TestUpdateUserName(t *testing.T) {
-	ResetUsers()
+
+	repo := user.NewInMemoryUserRepository()
 
 	user := model.User{
 		Name: "Ralph",
 	}
 
-	UpdateUserName(1, user)
+	repo.UpdateUserName(1, &user)
 
 	expectedUsers := []model.User{
 		{ID: 1, Name: "Ralph"},
@@ -129,7 +149,12 @@ func TestUpdateUserName(t *testing.T) {
 		{ID: 3, Name: "User 3"},
 	}
 
-	if !slices.Equal(users, expectedUsers) {
+	users, err := repo.GetUsers()
+	if err != nil {
+		t.Fatalf("error getting users")
+	}
+
+	if !reflect.DeepEqual(users, expectedUsers) {
 		t.Errorf("Expected users %v, but got %v", expectedUsers, users)
 	}
 }
