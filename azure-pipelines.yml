@@ -13,7 +13,7 @@ resources:
 #   azureSubscription: 'Azure RM'
 #   appName: 'acr-paul-sandford'
 
-  variables:
+variables:
 - group: sinclair-app-variables
 - name: dockerRegistryServiceConnection 
   value: 'Docker ACR'
@@ -26,7 +26,7 @@ resources:
 - name: tag
   value: '$(Build.BuildId)'
 - name: azureSubscription
-  value: 'Data Academy Project'
+  value: 'Azure RM'
 - name: appName
   value: 'acr-paul-sandford'
 
