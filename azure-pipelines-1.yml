@@ -49,6 +49,13 @@ stages:
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)
+      env:
+        DBTYPE: $(DBTYPE)
+        DBHOST: $(DBHOST)
+        DBNAME: $(DBNAME)
+        DBUSER: $(DBUSER)
+        DBPASSWORD: $(DBPASSWORD)
+        DBSSLMODE: $(DBSSSLMODE)
 - stage: Test
   displayName: 'Run tests'
   dependsOn: Build
