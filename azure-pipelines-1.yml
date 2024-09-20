@@ -4,14 +4,32 @@ trigger:
 resources:
 - repo: self
 
-variables:
-  dockerRegistryServiceConnection: 'Docker ACR'
-  imageRepository: 'sinclair/paul-sandford-example-app' #eg 'amiga/dan-webb-example-app'
-  containerRegistry: 'acrbjssacademy.azurecr.io' # eg 'acrbjssacademy.azurecr.io'
-  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
-  tag: '$(Build.BuildId)'
-  azureSubscription: 'Azure RM'
-  appName: 'acr-paul-sandford'
+# variables:
+#   dockerRegistryServiceConnection: 'Docker ACR'
+#   imageRepository: 'sinclair/paul-sandford-example-app' #eg 'amiga/dan-webb-example-app'
+#   containerRegistry: 'acrbjssacademy.azurecr.io' # eg 'acrbjssacademy.azurecr.io'
+#   dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+#   tag: '$(Build.BuildId)'
+#   azureSubscription: 'Azure RM'
+#   appName: 'acr-paul-sandford'
+
+  variables:
+- group: sinclair-app-variables
+- name: dockerRegistryServiceConnection 
+  value: 'Docker ACR'
+- name:  imageRepository
+  value: 'sinclair/paul-sandford-example-app'
+- name: containerRegistry
+  value: 'acrbjssacademy.azurecr.io'
+- name: dockerfilePath
+  value: '$(Build.SourcesDirectory)/Dockerfile'
+- name: tag
+  value: '$(Build.BuildId)'
+- name: azureSubscription
+  value: 'Azure RM'
+- name: appName
+  value: 'acr-paul-sandford'
+
 
 
 stages:
